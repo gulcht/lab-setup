@@ -13,9 +13,11 @@ spec:
       labels:
         app: quest-tracker-api
     spec:
+      imagePullSecrets:
+        - name: ghcr-creds
       containers:
         - name: api
-          image: quests-tracker:latest
+          image: ghcr.io/gulcht/quests-tracker:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
