@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quest-tracker-api
+  namespace: quest-tracker-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: quest-tracker-api
+  template:
+    metadata:
+      labels:
+        app: quest-tracker-api
+    spec:
+      containers:
+        - name: api
+          image: quests-tracker:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: api-config
+            - secretRef:
+                name: api-secrets

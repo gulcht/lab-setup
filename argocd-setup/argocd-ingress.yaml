@@ -1,0 +1,42 @@
+apiVersion: traefik.io/v1alpha1
+kind: ServersTransport
+metadata:
+  name: argocd-transport
+  namespace: argocd
+spec:
+  insecureSkipVerify: true
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: argocd-server-ingress
+  namespace: argocd
+  annotations:
+    # Tell Traefik to communicate with the backend service (ArgoCD server) using HTTPS protocol
+    traefik.ingress.kubernetes.io/service.serversscheme: https
+    # Reference the ServersTransport to skip TLS verification of the self-signed certificate
+    traefik.ingress.kubernetes.io/service.serverstransport: argocd-argocd-transport@kubernetescrd
+    # Tell Traefik to use the websecure (HTTPS) entrypoint
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    # If using cert-manager, uncomment the line below:
+    # cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: traefik
+  rules:
+  - host: argocd.local-lab.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: argocd-server
+            port:
+              number: 443
+  tls:
+  - hosts:
+    - argocd.local-lab.com
+    secretName: argocd-server-tls
+
+
+
