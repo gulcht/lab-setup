@@ -11,7 +11,7 @@ spec:
     path: example/k8s/postgres
   destination:
     server: 'https://kubernetes.default.svc'
-    namespace: default
+    namespace: quest-tracker-app
   syncPolicy:
     automated:
       prune: true

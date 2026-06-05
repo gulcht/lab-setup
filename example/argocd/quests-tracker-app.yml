@@ -11,7 +11,7 @@ spec:
     path: example/k8s/quests-tracker-api
   destination:
     server: 'https://kubernetes.default.svc'
-    namespace: default
+    namespace: quest-tracker-app
   syncPolicy:
     automated:
       prune: true

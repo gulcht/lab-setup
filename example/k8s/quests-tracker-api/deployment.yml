@@ -15,6 +15,19 @@ spec:
     spec:
       imagePullSecrets:
         - name: ghcr-creds
+      initContainers:
+        - name: db-migration
+          image: postgres:15-alpine
+          command:
+            - sh
+            - -c
+            - psql "$(DATABASE_URL)" -f /migrations/up.sql
+          envFrom:
+            - secretRef:
+                name: api-secrets
+          volumeMounts:
+            - name: migration-script
+              mountPath: /migrations
       containers:
         - name: api
           image: ghcr.io/gulcht/quests-tracker:latest
@@ -26,3 +39,8 @@ spec:
                 name: api-config
             - secretRef:
                 name: api-secrets
+      volumes:
+        - name: migration-script
+          configMap:
+            name: api-migration-db
+

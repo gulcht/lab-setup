@@ -7,3 +7,46 @@ data:
   SERVER_PORT: "3000"
   SERVER_BODY_LIMIT: "10"
   SERVER_TIMEOUT: "30"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-migration-db
+  namespace: quest-tracker-app
+data:
+  up.sql: |
+    CREATE TABLE IF NOT EXISTS guild_commanders (
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(255) UNIQUE NOT NULL,
+        "password" VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP NOT NULL DEFAULT now(),
+        updated_at TIMESTAMP NOT NULL DEFAULT now()
+    );
+
+    CREATE TABLE IF NOT EXISTS adventurers (
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(255) UNIQUE NOT NULL,
+        "password" VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP NOT NULL DEFAULT now(),
+        updated_at TIMESTAMP NOT NULL DEFAULT now()
+    );
+
+    CREATE TABLE IF NOT EXISTS quests (
+        id SERIAL PRIMARY KEY,
+        "name" VARCHAR(255) NOT NULL,
+        "description" TEXT,
+        "status" VARCHAR(255) NOT NULL,
+        guild_commander_id INTEGER NOT NULL,
+        created_at TIMESTAMP NOT NULL DEFAULT now(),
+        updated_at TIMESTAMP NOT NULL DEFAULT now(),
+        deleted_at TIMESTAMP,
+        CONSTRAINT fk_guild_commander FOREIGN KEY (guild_commander_id) REFERENCES guild_commanders(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS quest_adventurer_junction (
+        quest_id INTEGER NOT NULL,
+        adventurer_id INTEGER NOT NULL,
+        PRIMARY KEY (quest_id, adventurer_id),
+        CONSTRAINT fk_quest FOREIGN KEY (quest_id) REFERENCES quests(id),
+        CONSTRAINT fk_adventurer FOREIGN KEY (adventurer_id) REFERENCES adventurers(id)
+    );
