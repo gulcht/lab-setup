@@ -38,8 +38,26 @@ You need to extract the API Server endpoint and the CA Certificate from your act
 
 3.  **Generate a Service Account Token for Vault Auth:**
     ```bash
-    kubectl create token vault-auth -n vault
+    # Note: Default token expires in 1 hour. To extend it (e.g. 14 days / 336 hours):
+    kubectl create token vault-auth -n vault --duration=336h
     ```
+
+    > [!WARNING]
+    > Tokens generated via `kubectl create token` are temporary (defaulting to 1 hour, or extended with `--duration`). Once they expire, Vault's `token_reviewer_jwt` will fail with a `403 permission denied` error.
+    >
+    > To create a permanent token (no expiration), you can generate a legacy ServiceAccount token secret:
+    > ```yaml
+    > apiVersion: v1
+    > kind: Secret
+    > metadata:
+    >   name: vault-auth-token
+    >   namespace: vault
+    >   annotations:
+    >     kubernetes.io/service-account.name: "vault-auth"
+    > type: kubernetes.io/service-account-token
+    > ```
+    > Extract it using: `kubectl get secret vault-auth-token -n vault -o jsonpath='{.data.token}' | base64 -d`
+
 
 ---
 
